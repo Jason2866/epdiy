@@ -4,7 +4,7 @@
  * for 4 bits color (16 colors - well, greys.) MSB first.  At 80 MHz, screen
  * clears execute in 1.075 seconds and images are drawn in 1.531 seconds.
  */
-#define ESP32
+//#define ESP32
 
 #include "esp_heap_caps.h"
 #include "esp_log.h"
