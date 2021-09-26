@@ -18,3 +18,4 @@ __pycache__
 examples/weather/components
 sdkconfig
 .DS_Store
+examples/weather/main/owm_credentials.h
