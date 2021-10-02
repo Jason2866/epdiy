@@ -37,7 +37,7 @@
 
 
 //################  VERSION  ##################################################
-String version = "1.0 / 9.7in";     // Programme version, see change log at end
+String version = "1.0 / 4.7in";     // Programme version, see change log at end
 //################ VARIABLES ##################################################
 
 enum alignment {LEFT, RIGHT, CENTER};
@@ -62,7 +62,7 @@ const byte EventThreshold = 2; // Change to 1 to view all messages on e-paper sc
 int        wifi_signal, CurrentHour = 0, CurrentMin = 0, CurrentSec = 0, EventCnt = 0;
 
 //################ PROGRAM VARIABLES and OBJECTS ##########################################
-#define max_readings 8
+#define max_readings 6
 
 Forecast_record_type  WxConditions[1];
 Forecast_record_type  WxForecast[max_readings];
@@ -552,68 +552,72 @@ double NormalizedMoonPhase(int d, int m, int y) {
   return (Phase - (int) Phase);
 }
 
-void DisplayWeather() {                          // 9.7" e-paper display is 1200x825 resolution
-    DisplayStatusSection(990, 20, wifi_signal); // Wi-Fi signal strength and Battery voltage
-    DisplayGeneralInfoSection();                 // Top line of the display
-
-    DisplayDisplayWindSection(1000, 210, WxConditions[0].Winddir, WxConditions[0].Windspeed, 130);
-    DisplayAstronomySection(920, 720);             // Astronomy section Sun rise/set, Moon phase and Moon icon
-    DisplayMainWeatherSection(137, 130);          // Centre section of display for Location, temperature, Weather report, current Wx Symbol and wind direction
-    DisplayForecastSection(10, 330);             // 3hr forecast boxes
+void DisplayWeather()                               // 4.7" e-paper display is 960x540 resolution
+{
+    DisplayStatusSection(630, 22, wifi_signal);     // Wi-Fi signal strength and Battery voltage
+    DisplayGeneralInfoSection();                    // Top line of the display
+    DisplayDisplayWindSection(800, 210, WxConditions[0].Winddir, WxConditions[0].Windspeed, 130);
+    //DisplayDisplayWindSection(800, 210, 110, 2, 130);
+    DisplayAstronomySection(600, 400);              // Astronomy section Sun rise/set, Moon phase and Moon icon
+    DisplayMainWeatherSection(137, 130);            // Centre section of display for Location, temperature, Weather report, current Wx Symbol and wind direction
+    DisplayForecastSection(10, 330);                // 3hr forecast boxes
 }
 
 
-void DisplayGeneralInfoSection() {
-  setFont(OpenSans8B);
-  drawString(4, 2, City, LEFT);
-  // Uncomment the next line if the display of IP- and MAC-Adddress is wanted
-  //drawString(SCREEN_WIDTH - 150, 20, "IP=" + LocalIP + ",  MAC=" + WiFi.macAddress() ,RIGHT);
-  drawLine(5, 30, SCREEN_WIDTH - 8, 30, 0xAA);
-  drawString(200, 2, Date_str, LEFT);
-  drawString(400, 2, TXT_UPDATED + Time_str, LEFT);
+void DisplayGeneralInfoSection()
+{
+    setFont(OpenSans8B);
+    drawString(4, 2, City, LEFT);
+    // Uncomment the next line if the display of IP- and MAC-Adddress is wanted
+    //drawString(SCREEN_WIDTH - 150, 20, "IP=" + LocalIP + ",  MAC=" + WiFi.macAddress() ,RIGHT);
+    drawLine(5, 30, SCREEN_WIDTH - 8, 30, 0xAA);
+    drawString(200, 4, Date_str, LEFT);
+    drawString(400, 2, TXT_UPDATED + Time_str, LEFT);
 }
 
-void DisplayMainWeatherSection(int x, int y) {  // (x=500, y=190)
-  DisplayConditionsSection(x + 3, y + 50, WxConditions[0].Icon, LargeIcon);
-  DisplayTemperatureSection(x + 230, y - 30, 180, 170);
-  DisplayPressureSection(x + 160, y + 70, 180, 170,  WxConditions[0].Pressure, WxConditions[0].Trend);
-  DisplayPrecipitationSection(x + 268, y - 8, 181, 170);
-  //DisplayForecastTextSection(x + 147, y + 22, 548, 90);
+void DisplayMainWeatherSection(int x, int y)    // (x=500, y=190)
+{
+    DisplayConditionsSection(x + 3, y + 50, WxConditions[0].Icon, LargeIcon);
+    DisplayTemperatureSection(x + 230, y - 30, 180, 170);
+    DisplayPressureSection(x + 160, y + 70, 180, 170,  WxConditions[0].Pressure, WxConditions[0].Trend);
+    DisplayPrecipitationSection(x + 268, y - 8, 181, 170);
+    DisplayForecastTextSection(x + 147, y + 100, 180, 170); // DisplayForecastTextSection(x + 147, y + 22, 548, 90);
 }
 
-void DisplayDisplayWindSection(int x, int y, float angle, float windspeed, int Cradius) {
-  arrow(x, y, Cradius - 22, angle, 18, 33); // Show wind direction on outer circle of width and length
-  setFont(OpenSans12);
-  int dxo, dyo, dxi, dyi;
-  drawCircle(x, y, Cradius, GxEPD_BLACK);     // Draw compass circle
-  drawCircle(x, y, Cradius + 1, GxEPD_BLACK); // Draw compass circle
-  drawCircle(x, y, Cradius * 0.7, GxEPD_BLACK); // Draw compass inner circle
-  for (float a = 0; a < 360; a = a + 22.5) {
-    dxo = Cradius * cos((a - 90) * PI / 180);
-    dyo = Cradius * sin((a - 90) * PI / 180);
-    if (a == 45)  drawString(dxo + x + 27, dyo + y - 20, TXT_NE, CENTER);
-    if (a == 135) drawString(dxo + x + 27, dyo + y - 2,  TXT_SE, CENTER);
-    if (a == 225) drawString(dxo + x - 43, dyo + y - 2,  TXT_SW, CENTER);
-    if (a == 315) drawString(dxo + x - 43, dyo + y - 20, TXT_NW, CENTER);
-    dxi = dxo * 0.9;
-    dyi = dyo * 0.9;
-    drawLine(dxo + x, dyo + y, dxi + x, dyi + y, GxEPD_BLACK);
-    dxo = dxo * 0.7;
-    dyo = dyo * 0.7;
-    dxi = dxo * 0.9;
-    dyi = dyo * 0.9;
-    drawLine(dxo + x, dyo + y, dxi + x, dyi + y, GxEPD_BLACK);
-  }
-  drawString(x - 3, y - Cradius - 30, TXT_N, CENTER);
-  drawString(x - 5, y + Cradius + 18, TXT_S, CENTER);
-  drawString(x - Cradius - 27, y - 11, TXT_W, CENTER);
-  drawString(x + Cradius + 15, y - 11, TXT_E, CENTER);
-  drawString(x - 12, y - 57, WindDegToDirection(angle), CENTER);
-  drawString(x + 3, y + 50, String(angle, 0) + "°", CENTER);
-  setFont(OpenSans24B);
-  drawString(x + 3, y - 16, String(windspeed, 1), CENTER);
-  //setFont(OpenSans12);
-  //drawString(x + 16, y -12, (Units == "M" ? "m/s" : "mph"), LEFT);
+void DisplayDisplayWindSection(int x, int y, float angle, float windspeed, int Cradius)
+{
+    arrow(x, y, Cradius - 22, angle, 18, 33); // Show wind direction on outer circle of width and length
+    setFont(OpenSans12);
+    int dxo, dyo, dxi, dyi;
+    drawCircle(x, y, Cradius, GxEPD_BLACK);     // Draw compass circle
+    drawCircle(x, y, Cradius + 1, GxEPD_BLACK); // Draw compass circle
+    drawCircle(x, y, Cradius * 0.7, GxEPD_BLACK); // Draw compass inner circle
+    for (float a = 0; a < 360; a = a + 22.5) {
+        dxo = Cradius * cos((a - 90) * PI / 180);
+        dyo = Cradius * sin((a - 90) * PI / 180);
+        if (a == 45)  drawString(dxo + x + 27, dyo + y - 20, TXT_NE, CENTER);
+        if (a == 135) drawString(dxo + x + 27, dyo + y - 2,  TXT_SE, CENTER);
+        if (a == 225) drawString(dxo + x - 43, dyo + y - 2,  TXT_SW, CENTER);
+        if (a == 315) drawString(dxo + x - 43, dyo + y - 20, TXT_NW, CENTER);
+        dxi = dxo * 0.9;
+        dyi = dyo * 0.9;
+        drawLine(dxo + x, dyo + y, dxi + x, dyi + y, GxEPD_BLACK);
+        dxo = dxo * 0.7;
+        dyo = dyo * 0.7;
+        dxi = dxo * 0.9;
+        dyi = dyo * 0.9;
+        drawLine(dxo + x, dyo + y, dxi + x, dyi + y, GxEPD_BLACK);
+    }
+    drawString(x - 3, y - Cradius - 30, TXT_N, CENTER);
+    drawString(x - 5, y + Cradius + 18, TXT_S, CENTER);
+    drawString(x - Cradius - 27, y - 11, TXT_W, CENTER);
+    drawString(x + Cradius + 15, y - 11, TXT_E, CENTER);
+    drawString(x - 12, y - 57, WindDegToDirection(angle), CENTER);
+    drawString(x + 3, y + 50, String(angle, 0) + "°", CENTER);
+    setFont(OpenSans24B);
+    drawString(x + 3, y - 16, String(windspeed, 1), CENTER);
+    setFont(OpenSans12);
+    drawString(x -20, y + 22, (Units == "M" ? "m/s" : "mph"), LEFT);
 }
 
 String WindDegToDirection(float winddirection) {
@@ -636,35 +640,38 @@ String WindDegToDirection(float winddirection) {
   return "?";
 }
 
-void DisplayTemperatureSection(int x, int y, int twidth, int tdepth) {
-  //setFont(OpenSans24/*24b*/);
-  setFont(OpenSans24B);
-  drawString(x, y, String(WxConditions[0].Temperature, 1) + "°C", CENTER); // Show current Temperature
-  setFont(OpenSans16);
-  drawString(x, y + 40, String(WxConditions[0].High, 0) + "° | " + String(WxConditions[0].Low, 0) + "°", CENTER); // Show forecast high and Low
+void DisplayTemperatureSection(int x, int y, int twidth, int tdepth)
+{
+    //setFont(OpenSans24/*24b*/);
+    setFont(OpenSans24B);
+    drawString(x, y, String(WxConditions[0].Temperature, 1) + "°C", CENTER); // Show current Temperature
+    setFont(OpenSans16);
+    drawString(x, y + 40, String(WxConditions[0].High, 0) + "° | " + String(WxConditions[0].Low, 0) + "°", CENTER); // Show forecast high and Low
 }
 
-void DisplayForecastTextSection(int x, int y , int fwidth, int fdepth) {
-  String Wx_Description;
-  setFont(OpenSans24/*18*/);
-  if (Language == "DE")
-    Wx_Description = WxConditions[0].Forecast0;
-  else {
-    Wx_Description = WxConditions[0].Main0;
-    if (WxConditions[0].Forecast0 != "") Wx_Description += " (" + WxConditions[0].Forecast0;
-  }
-  if (WxConditions[0].Forecast1 != "") Wx_Description += ", " + WxConditions[0].Forecast1;
-  if (WxConditions[0].Forecast2 != "") Wx_Description += ", " + WxConditions[0].Forecast2;
-  if (Wx_Description.indexOf("(") > 0) Wx_Description += ")";
-  int MsgWidth = 43; // Using proportional fonts, so be aware of making it too wide!
-  if (Language == "DE") drawStringMaxWidth(x + 30, y + 40, MsgWidth, Wx_Description, LEFT); // Leave German text in original format, 28 character screen width at this font size
-  else                  drawStringMaxWidth(x + 30, y + 40, MsgWidth, TitleCase(Wx_Description), LEFT); // 28 character screen width at this font size
+void DisplayForecastTextSection(int x, int y, int fwidth, int fdepth)
+{
+    String Wx_Description;
+    setFont(OpenSans16);
+    if (Language == "DE")
+        Wx_Description = WxConditions[0].Forecast0;
+    else {
+        Wx_Description = WxConditions[0].Main0;
+        if (WxConditions[0].Forecast0 != "") Wx_Description += " (" + WxConditions[0].Forecast0;
+    }
+    if (WxConditions[0].Forecast1 != "") Wx_Description += ", " + WxConditions[0].Forecast1;
+    if (WxConditions[0].Forecast2 != "") Wx_Description += ", " + WxConditions[0].Forecast2;
+    if (Wx_Description.indexOf("(") > 0) Wx_Description += ")";
+    int MsgWidth = 43; // Using proportional fonts, so be aware of making it too wide!
+    if (Language == "DE") drawStringMaxWidth(x + 30, y + 40, MsgWidth, Wx_Description, LEFT); // Leave German text in original format, 28 character screen width at this font size
+    else                  drawStringMaxWidth(x + 30, y + 40, MsgWidth, TitleCase(Wx_Description), LEFT); // 28 character screen width at this font size
 }
 
-void DisplayPressureSection(int x, int y, int pwidth, int pdepth, float pressure, String slope) {
-  pressure = pressure * 0.750062; //convert to mmhg
-  setFont(OpenSans12/*24b*/);
-  drawString(x, y, String(pressure, (Units == "M"?0:1)) + (Units == "M" ? "mm" : "in"), LEFT);
+void DisplayPressureSection(int x, int y, int pwidth, int pdepth, float pressure, String slope)
+{
+    pressure = pressure * 0.750062; //convert to mmhg
+    setFont(OpenSans12/*24b*/);
+    drawString(x, y, String(pressure, (Units == "M" ? 0 : 1)) + (Units == "M" ? "mm" : "in"), LEFT);
 }
 
 void DisplayForecastWeather(int x, int y, int index) {
@@ -765,8 +772,9 @@ String MoonPhase(int d, int m, int y, String hemisphere) {
   return "";
 }
 
+/*
 void DisplayForecastSection(int x, int y) {
-  setFont(OpenSans12/*9*/);
+  setFont(OpenSans12);
   int f = 1;
   do {
     DisplayForecastWeather(x, y, f);
@@ -787,7 +795,7 @@ void DisplayForecastSection(int x, int y) {
   int gx = (SCREEN_WIDTH - gwidth * 4) / 5 + 7;
   int gy = (SCREEN_HEIGHT - gheight - 50);
   int gap = gwidth + gx;
-  //setFont(OpenSans12/*18*/);
+  //setFont(OpenSans12);
   //drawString(SCREEN_WIDTH / 2 - 50, gy - 50, TXT_FORECAST_VALUES, CENTER); // Based on a graph height of 60
   //setFont(OpenSans12);
   // (x,y,width,height,MinValue, MaxValue, Title, Data Array, AutoScale, ChartMode)
@@ -798,6 +806,40 @@ void DisplayForecastSection(int x, int y) {
     DrawGraph(gx + 1 * gap + 5, gy, gwidth, gheight, 0, 30, Units == "M" ? TXT_RAINFALL_MM : TXT_RAINFALL_IN, rain_readings, max_readings, autoscale_on, barchart_on);
   else DrawGraph(gx + 1 * gap + 5, gy, gwidth, gheight, 0, 30, Units == "M" ? TXT_SNOWFALL_MM : TXT_SNOWFALL_IN, snow_readings, max_readings, autoscale_on, barchart_on);
 }
+*/
+
+void DisplayForecastSection(int x, int y)
+{
+    setFont(OpenSans12/*9*/);
+    int f = 1;
+    do {
+        DisplayForecastWeather(x, y, f);
+        f++;
+    } while (f < max_readings);
+
+    return;
+
+    // Pre-load temporary arrays with with data - because C parses by reference
+    int r = 1;
+    do {
+        if (Units == "I") pressure_readings[r] = WxForecast[r].Pressure * 0.02953;   else pressure_readings[r] = WxForecast[r].Pressure;
+        if (Units == "I") rain_readings[r]     = WxForecast[r].Rainfall * 0.0393701; else rain_readings[r]     = WxForecast[r].Rainfall;
+        if (Units == "I") snow_readings[r]     = WxForecast[r].Snowfall * 0.0393701; else snow_readings[r]     = WxForecast[r].Snowfall;
+        temperature_readings[r] = WxForecast[r].Temperature;
+        humidity_readings[r]    = WxForecast[r].Humidity;
+        r++;
+    } while (r <= max_readings);
+
+    int gwidth = 270, gheight = 150;
+    int gy = (SCREEN_HEIGHT - gheight - 50);
+    DrawGraph(40, gy, gwidth, gheight, 10, 30,    Units == "M" ? TXT_TEMPERATURE_C : TXT_TEMPERATURE_F, temperature_readings, max_readings, autoscale_on, barchart_off);
+    if (SumOfPrecip(rain_readings, max_readings) >= SumOfPrecip(snow_readings, max_readings)) {
+        DrawGraph(gwidth + 110, gy, gwidth, gheight, 0, 30, Units == "M" ? TXT_RAINFALL_MM : TXT_RAINFALL_IN, rain_readings, max_readings, autoscale_on, barchart_on);
+    } else {
+        DrawGraph(gwidth + 110, gy, gwidth, gheight, 0, 30, Units == "M" ? TXT_SNOWFALL_MM : TXT_SNOWFALL_IN, snow_readings, max_readings, autoscale_on, barchart_on);
+    }
+}
+
 
 void DisplayConditionsSection(int x, int y, String IconName, bool IconSize) {
   Serial.println("Icon name: " + IconName);
@@ -836,28 +878,30 @@ void arrow(int x, int y, int asize, float aangle, int pwidth, int plength) {
   fillTriangle(xx1, yy1, xx3, yy3, xx2, yy2, GxEPD_BLACK);
 }
 
-
-void DisplayStatusSection(int x, int y, int rssi) {
-  setFont(OpenSans8B);
-  DrawRSSI(x, y + 4, rssi);
-  //DrawBattery(x + 100, y + 4);
+void DisplayStatusSection(int x, int y, int rssi)
+{
+    setFont(OpenSans8B);
+    DrawRSSI(x, y + 4, rssi);
+    DrawBattery(x + 120, y + 4);
 }
 
-void DrawRSSI(int x, int y, int rssi) {
-  int WIFIsignal = 0;
-  int xpos = 1;
-  for (int _rssi = -100; _rssi <= rssi; _rssi = _rssi + 20) {
-    if (_rssi <= -20)  WIFIsignal = 30; //            <-20dbm displays 5-bars
-    if (_rssi <= -40)  WIFIsignal = 24; //  -40dbm to  -21dbm displays 4-bars
-    if (_rssi <= -60)  WIFIsignal = 18; //  -60dbm to  -41dbm displays 3-bars
-    if (_rssi <= -80)  WIFIsignal = 12; //  -80dbm to  -61dbm displays 2-bars
-    if (_rssi <= -100) WIFIsignal = 6;  // -100dbm to  -81dbm displays 1-bar
-    fillRect(x + xpos * 8, y - WIFIsignal, 7, WIFIsignal, GxEPD_BLACK);
-    xpos++;
-  }
-  //fillRect(x, y - 1, 5, 1, GxEPD_BLACK);
-  //drawString(x + 6,  y + 10, String(rssi) + "dBm", CENTER);
+void DrawRSSI(int x, int y, int rssi)
+{
+    int WIFIsignal = 0;
+    int xpos = 1;
+    for (int _rssi = -100; _rssi <= rssi; _rssi = _rssi + 20) {
+        if (_rssi <= -20)  WIFIsignal = 30; //            <-20dbm displays 5-bars
+        if (_rssi <= -40)  WIFIsignal = 24; //  -40dbm to  -21dbm displays 4-bars
+        if (_rssi <= -60)  WIFIsignal = 18; //  -60dbm to  -41dbm displays 3-bars
+        if (_rssi <= -80)  WIFIsignal = 12; //  -80dbm to  -61dbm displays 2-bars
+        if (_rssi <= -100) WIFIsignal = 6;  // -100dbm to  -81dbm displays 1-bar
+        fillRect(x + xpos * 8, y - WIFIsignal, 7, WIFIsignal, GxEPD_BLACK);
+        xpos++;
+    }
+    //fillRect(x, y - 1, 5, 1, GxEPD_BLACK);
+    //drawString(x + 6,  y + 10, String(rssi) + "dBm", CENTER);
 }
+
 
 boolean UpdateLocalTime() {
   struct tm timeinfo;
@@ -894,21 +938,22 @@ boolean UpdateLocalTime() {
   return true;
 }
 
-void DrawBattery(int x, int y) {
-  uint8_t percentage = 100;
-  float voltage = analogRead(35) / 4096.0 * 7.46;
-  if (voltage > 1 ) { // Only display if there is a valid reading
-    Serial.println("Voltage = " + String(voltage));
-    percentage = 2836.9625 * pow(voltage, 4) - 43987.4889 * pow(voltage, 3) + 255233.8134 * pow(voltage, 2) - 656689.7123 * voltage + 632041.7303;
-    if (voltage >= 4.20) percentage = 100;
-    if (voltage <= 3.20) percentage = 0;  // orig 3.5
-    drawRect(x + 25, y - 20, 40, 15, GxEPD_BLACK);
-    fillRect(x + 65, y - 16, 4, 6, GxEPD_BLACK);
-    fillRect(x + 27, y - 18, 36 * percentage / 100.0, 11, GxEPD_BLACK);
-    setFont(OpenSans8B/*9*/);
-    drawString(x + 5, y - 15, String(percentage) + "%", RIGHT);
-    //drawString(x + 13, y + 5,  String(voltage, 2) + "v", CENTER);
-  }
+void DrawBattery(int x, int y)
+{
+    uint8_t percentage = 100;
+    float voltage = analogRead(35) / 4096.0 * 7.46;
+    if (voltage > 1 ) { // Only display if there is a valid reading
+        Serial.println("Voltage = " + String(voltage));
+        percentage = 2836.9625 * pow(voltage, 4) - 43987.4889 * pow(voltage, 3) + 255233.8134 * pow(voltage, 2) - 656689.7123 * voltage + 632041.7303;
+        if (voltage >= 4.20) percentage = 100;
+        if (voltage <= 3.20) percentage = 0;  // orig 3.5
+        drawRect(x + 25, y - 20, 40, 15, GxEPD_BLACK);
+        fillRect(x + 65, y - 16, 4, 6, GxEPD_BLACK);
+        fillRect(x + 27, y - 18, 36 * percentage / 100.0, 11, GxEPD_BLACK);
+        setFont(OpenSans8B/*9*/);
+        drawString(x + 5, y - 15, String(percentage) + "%", RIGHT);
+        drawString(x + 110, y - 15, String(voltage, 2) + "v", CENTER);
+    }
 }
 
 // Symbols are drawn on a relative 10x10grid and 1 scale unit = 1 drawing unit
@@ -1400,11 +1445,3 @@ void drawPixel(int x, int y, uint8_t color) {
 void setFont(EpdFont const &font) {
   currentFont = font;
 }
-
-
-
-
-
-
-
-
