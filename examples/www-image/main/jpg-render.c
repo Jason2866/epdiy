@@ -35,8 +35,8 @@
 EpdiyHighlevelState hl;
 
 // WiFi configuration. Please fill with your WiFi credentials
-#define ESP_WIFI_SSID     ""
-#define ESP_WIFI_PASSWORD ""
+#define ESP_WIFI_SSID     "Jason_Home_WLAN"
+#define ESP_WIFI_PASSWORD "Nasenbohrer"
 
 // Image URL and jpg settings. Make sure to update WIDTH/HEIGHT if using loremflickr
 // Note: Only HTTP protocol supported (Check README to use SSL secure URLs) loremflickr
