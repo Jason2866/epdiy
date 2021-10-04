@@ -69,9 +69,9 @@ extern const uint8_t server_cert_pem_end[] asm("_binary_server_cert_pem_end");
 // Minutes that goes to deepsleep after rendering
 // If you build a gallery URL that returns a new image on each request (like cale.es)
 // this parameter can be interesting to make an automatic photo-slider
-#define DEEPSLEEP_MINUTES_AFTER_RENDER 30
+#define DEEPSLEEP_MINUTES_AFTER_RENDER 1
 
-#define DEBUG_VERBOSE true
+#define DEBUG_VERBOSE false
 
 // JPEG decoder
 JDEC jd;
