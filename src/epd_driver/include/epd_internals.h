@@ -46,7 +46,7 @@
 #define EPD_WIDTH 1024
 /// Height of the display area in pixels.
 #define EPD_HEIGHT 758
-#elif defined(CONFIG_EPD_DISPLAY_TYPE_ED047TC1)
+#elif defined(CONFIG_EPD_DISPLAY_TYPE_ED047TC2)
 /// Width of the display area in pixels.
 #define EPD_WIDTH 960
 /// Height of the display area in pixels.
